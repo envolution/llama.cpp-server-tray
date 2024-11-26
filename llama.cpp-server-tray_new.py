@@ -1,27 +1,23 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 import os
 import sys
 import subprocess
 from pathlib import Path
-from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMessageBox, QMainWindow, QTextEdit, QVBoxLayout, QWidget
-from PySide6.QtGui import QIcon, QAction
+from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMessageBox, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, QProcess
 
 # Paths to icons
-ICON_RUNNING = "llama_service_running.png"
-ICON_STOPPED = "llama_service.png"
+ICON_RUNNING = "/usr/share/icons/hicolor/48x48/apps/llama_service_running.png"
+ICON_STOPPED = "/usr/share/icons/hicolor/48x48/apps/llama_service.png"
 
 SERVICE_NAME = "llama.cpp.service"
 APP_NAME = "llama_tray_service"
-AUTOSTART_DIR = Path.home() / ".config" / "autostart"
-AUTOSTART_FILE = AUTOSTART_DIR / f"{APP_NAME}.desktop"
 
 def is_service_running():
     """Check if the systemd service is active."""
     try:
         result = subprocess.run(
-            ["systemctl", "is-active", SERVICE_NAME],
+            ["systemctl", "--user", "is-active", SERVICE_NAME],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -35,7 +31,7 @@ def start_service():
     """Start the systemd service."""
     try:
         subprocess.run(
-            ["systemctl", "start", SERVICE_NAME],
+            ["systemctl", "--user", "start", SERVICE_NAME],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -47,39 +43,13 @@ def stop_service():
     """Stop the systemd service."""
     try:
         subprocess.run(
-            ["systemctl", "stop", SERVICE_NAME],
+            ["systemctl", "--user", "stop", SERVICE_NAME],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
     except subprocess.CalledProcessError as e:
         print(f"Error stopping service: {e.stderr}")
-
-def create_autostart_entry():
-    """Create a .desktop file for autostart."""
-    if not AUTOSTART_DIR.exists():
-        AUTOSTART_DIR.mkdir(parents=True)
-    with open(AUTOSTART_FILE, "w") as f:
-        f.write(
-            f"""[Desktop Entry]
-Type=Application
-Exec={sys.executable} {sys.argv[0]}
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name={APP_NAME}
-Comment=Tray application for llama.cpp.service
-"""
-        )
-
-def remove_autostart_entry():
-    """Remove the autostart .desktop file."""
-    if AUTOSTART_FILE.exists():
-        AUTOSTART_FILE.unlink()
-
-def is_autostart_enabled():
-    """Check if the autostart .desktop file exists."""
-    return AUTOSTART_FILE.exists()
 
 class LogWindow(QMainWindow):
     """A popup window to display live logs."""
@@ -109,7 +79,7 @@ class LogWindow(QMainWindow):
     def start_log_stream(self):
         """Start streaming logs using journalctl."""
         self.log_process.start(
-            "journalctl", ["-u", self.service_name, "-f", "-n", "50"]
+            "journalctl", ["--user", "-u", self.service_name, "-f", "-n", "50"]
         )
 
     def update_logs(self):
@@ -121,6 +91,7 @@ class LogWindow(QMainWindow):
         """Handle window close."""
         if self.log_process.state() == QProcess.Running:
             self.log_process.terminate()
+        event.accept()
 
 class TrayIcon(QSystemTrayIcon):
     def __init__(self):
@@ -130,17 +101,12 @@ class TrayIcon(QSystemTrayIcon):
         # Actions
         self.start_action = QAction("Start Service")
         self.stop_action = QAction("Stop Service")
-        self.autostart_action = QAction("Auto-Run at Startup")
-        self.autostart_action.setCheckable(True)
         self.show_log_action = QAction("Show Log")
         self.quit_action = QAction("Quit")
 
         # Add actions to menu
         self.menu.addAction(self.start_action)
         self.menu.addAction(self.stop_action)
-        self.menu.addSeparator()
-        self.menu.addAction(self.autostart_action)
-        self.menu.addSeparator()
         self.menu.addAction(self.show_log_action)
         self.menu.addSeparator()
         self.menu.addAction(self.quit_action)
@@ -148,7 +114,6 @@ class TrayIcon(QSystemTrayIcon):
         # Connect actions
         self.start_action.triggered.connect(self.handle_start)
         self.stop_action.triggered.connect(self.handle_stop)
-        self.autostart_action.triggered.connect(self.toggle_autostart)
         self.show_log_action.triggered.connect(self.show_log)
         self.quit_action.triggered.connect(self.handle_quit)
 
@@ -160,7 +125,6 @@ class TrayIcon(QSystemTrayIcon):
         self.timer.start(5000)  # Check every 5 seconds
 
         # Initialize icon state
-        self.autostart_action.setChecked(is_autostart_enabled())
         self.update_icon()
 
         # Log window instance
@@ -179,30 +143,15 @@ class TrayIcon(QSystemTrayIcon):
             self.log_window = LogWindow(SERVICE_NAME)
             self.log_window.show()
 
-    def toggle_autostart(self):
-        if self.autostart_action.isChecked():
-            create_autostart_entry()
-        else:
-            remove_autostart_entry()
-
     def handle_quit(self):
-        if is_service_running():
-            response = QMessageBox.question(
-                None,
-                "Service Running",
-                "Are you sure you want to quit without shutting down the service?",
-                QMessageBox.Yes | QMessageBox.No,
-            )
-            if response == QMessageBox.No:
-                return
         self.timer.stop()
         QApplication.quit()
 
     def update_icon(self):
         if is_service_running():
-            self.setIcon(QIcon.fromTheme(ICON_RUNNING))
+            self.setIcon(QIcon(ICON_RUNNING))
         else:
-            self.setIcon(QIcon.fromTheme(ICON_STOPPED))
+            self.setIcon(QIcon(ICON_STOPPED))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
