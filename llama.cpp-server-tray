@@ -147,9 +147,9 @@ class TrayIcon(QSystemTrayIcon):
 
     def update_icon(self):
         if is_service_running():
-            self.setIcon(QIcon(ICON_RUNNING))
+            self.setIcon(QIcon.fromTheme(ICON_RUNNING))
         else:
-            self.setIcon(QIcon(ICON_STOPPED))
+            self.setIcon(QIcon.fromTheme(ICON_STOPPED))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
