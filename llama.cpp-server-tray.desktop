@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Llama.cpp Server Tray
+Comment=Tray icon to control llama.cpp service
+Exec=llama.cpp-server-tray
+Icon=llama_service
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true
