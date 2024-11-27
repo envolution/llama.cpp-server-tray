@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Llama.cpp Server Tray
 Comment=Tray icon to control llama.cpp service
-Exec=llama.cpp-server-tray
+Exec=llama-cpp-server-tray
 Icon=llama.cpp-server-tray_svg
 Terminal=false
 Type=Application
