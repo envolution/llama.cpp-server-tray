@@ -2,7 +2,7 @@
 Name=Llama.cpp Server Tray
 Comment=Tray icon to control llama.cpp service
 Exec=llama.cpp-server-tray
-Icon=llama_service
+Icon=llama.cpp-server-tray_on
 Terminal=false
 Type=Application
 Categories=Utility;

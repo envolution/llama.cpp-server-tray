@@ -1,7 +1,7 @@
 PREFIX ?= /usr
 BIN_DIR = $(PREFIX)/bin
 DESKTOP_DIR = $(PREFIX)/share/applications
-ICON_DIR = $(PREFIX)/share/icons/hicolor/48x48/apps
+ICON_DIR = $(PREFIX)/share/icons/hicolor/scalable/apps
 DOC_DIR = $(PREFIX)/share/licenses/llama.cpp-server-tray
 
 install: install_bin install_desktop install_icons install_docs
