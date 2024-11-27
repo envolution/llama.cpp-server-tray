@@ -1,0 +1,48 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Distribution / Packaging
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+*.whl
+*.tar.gz
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Hatch virtual environments and config
+.hatch-env/
+.hatch/
+.hatch_cache/
+
+# Caching folders for tools
+*.coverage
+.coverage.*
+nosetests.xml
+*.tox/
+.tox/
+.coverage
+*.hypothesis/
+
+# Test files
+tests/__pycache__/

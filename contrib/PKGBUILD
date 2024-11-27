@@ -1,18 +1,35 @@
 # Maintainer: envolution
 
 pkgname=llama.cpp-server-tray
-pkgver=0.4
+_pname=llama_cpp_server_tray
+pkgver=0.4.2
 pkgrel=1
 pkgdesc="Companion system tray app for llama.cpp-server-service"
 arch=('any')
 url="https://github.com/envolution/llama.cpp-server-tray"
 license=('MIT')
-depends=('pyside6' 'python' 'leafpad' 'qt-sudo')
+depends=('pyside6' 'python')
 options=(!strip !debug)
-source=($pkgname-$pkgver::https://github.com/envolution/${pkgname}/archive/refs/tags/${pkgver}.tar.gz)
-sha256sums=('c7da6a9b9971964d84bdb62237cfb738232fe869777286d58f492c930763a5ff')
-
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/envolution/llama.cpp-server-tray/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('e435bff9c4b947b38d6484284c5f9155e19550a98530cd67eca5bdc77386d2bc')
+build() {
+  cd $_pname-$pkgver
+  python -m build --wheel --no-isolation
+}
 package() {
-  cd $pkgname-$pkgver && make install DESTDIR=$pkgdir
+  cd $_pname-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # Install non-Python files such as icons, documentation, and desktop entries
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+
+  # Desktop file and icons
+  install -Dm644 llama.cpp-server-tray.desktop "$pkgdir/usr/share/applications/llama.cpp-server-tray.desktop"
+
+  # Install the SVG icons for tray states
+  install -Dm644 icons/llama.cpp-server-tray_svg.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/llama.cpp-server-tray_svg.svg"
+  install -Dm644 icons/llama.cpp-server-tray_off.svg "$pkgdir/usr/share/icons/hicolor/48x48/apps/llama.cpp-server-tray_off.svg"
+  install -Dm644 icons/llama.cpp-server-tray_on.svg "$pkgdir/usr/share/icons/hicolor/48x48/apps/llama.cpp-server-tray_on.svg"
 }
 # vim:set ts=2 sw=2 et:

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llama-cpp-server-tray"
+version = "0.4.2"
+description = "Llama.cpp-server service manager and configuration editor"
+authors = [{name = "envolution"}]
+license = "MIT"
+dependencies = ["PySide6"]
+
+[project.scripts]
+llama-cpp-server-tray = "llama_cpp_server_tray.server_tray:main"
+llama-cpp-server-tray-editor = "llama_cpp_server_tray.editor:main"  # Updated import
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llama_cpp_server_tray"]

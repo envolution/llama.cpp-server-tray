@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import threading
 import subprocess
 from pathlib import Path
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMessageBox, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QInputDialog
@@ -9,8 +10,6 @@ from PySide6.QtGui import QIcon, QAction
 from PySide6.QtCore import QTimer, QProcess
 
 # Paths to icons
-#ICON_RUNNING = "llama_service_running.png"
-#ICON_STOPPED = "llama_service.png"
 ICON_RUNNING = "llama.cpp-server-tray_on.svg"
 ICON_STOPPED = "llama.cpp-server-tray_off.svg"
 
@@ -99,6 +98,11 @@ def is_autostart_enabled():
     """Check if the autostart .desktop file exists."""
     return AUTOSTART_FILE.exists()
 
+def launch_editor(file_path):
+    # Mimic command-line args and run editor in a separate thread
+    subprocess.Popen(["llama-cpp-server-tray-editor", file_path])
+    #sys.argv = ["editor.py", file_path]  # Mimic command-line args
+
 def open_config_file():
     """Open configuration file with elevated permissions."""
     # Ensure config file exists, copying from sample if needed
@@ -106,7 +110,7 @@ def open_config_file():
         try:
             # Attempt to copy sample file to config file
             subprocess.run(
-                ["qt-sudo", "cp", str(CONFIG_SAMPLE), str(CONFIG_FILE)],
+                ["pkexec", "cp", str(CONFIG_SAMPLE), str(CONFIG_FILE)],
                 check=True
             )
         except subprocess.CalledProcessError as e:
@@ -118,31 +122,14 @@ def open_config_file():
             return
 
     # Command to open the file with a text editor
-    cmd = ["qt-sudo", "-d", "leafpad", str(CONFIG_FILE)]
-    
     try:
-        # Start the editor in the background, detached from the parent process
-        subprocess.Popen(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            stdin=subprocess.DEVNULL,
-            start_new_session=True,  # Detach from the parent session
-        )
-    except FileNotFoundError:
-        QMessageBox.critical(
-            None, 
-            "Configuration Error", 
-            "The specified editor (leafpad) could not be found."
-        )
-        return
+        launch_editor(str(CONFIG_FILE))  # Closing parenthesis added here
     except Exception as e:
         QMessageBox.critical(
             None, 
-            "Configuration Error", 
-            f"An unexpected error occurred: {e}"
+            "Editor Launch Error", 
+            f"Could not launch editor: {e}"
         )
-        return
     
     return True
 
@@ -278,8 +265,8 @@ class TrayIcon(QSystemTrayIcon):
         else:
             self.setIcon(QIcon.fromTheme(ICON_STOPPED))
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+def main():            
+    app = QApplication(sys.argv)    
     app.setQuitOnLastWindowClosed(False)
 
     # Create the tray icon
@@ -289,3 +276,6 @@ if __name__ == "__main__":
 
     # Start the event loop
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
