@@ -9,8 +9,10 @@ from PySide6.QtGui import QIcon, QAction
 from PySide6.QtCore import QTimer, QProcess
 
 # Paths to icons
-ICON_RUNNING = "llama_service_running.png"
-ICON_STOPPED = "llama_service.png"
+#ICON_RUNNING = "llama_service_running.png"
+#ICON_STOPPED = "llama_service.png"
+ICON_RUNNING = "llama.cpp-server-tray_on.svg"
+ICON_STOPPED = "llama.cpp-server-tray_off.svg"
 
 SERVICE_NAME = "llama.cpp.service"
 APP_NAME = "llama_tray_service"
@@ -228,6 +230,7 @@ class TrayIcon(QSystemTrayIcon):
         # Initialize icon state
         self.autostart_action.setChecked(is_autostart_enabled())
         self.update_icon()
+        self.setVisible(True)
 
         # Log window instance
         self.log_window = None

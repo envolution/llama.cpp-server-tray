@@ -13,8 +13,8 @@ install_desktop:
 	install -Dm755 llama.cpp-server-tray.desktop $(DESTDIR)$(DESKTOP_DIR)/llama.cpp-server-tray.desktop
 
 install_icons:
-	install -Dm644 llama_service_running.png $(DESTDIR)$(ICON_DIR)/llama_service_running.png
-	install -Dm644 llama_service.png $(DESTDIR)$(ICON_DIR)/llama_service.png
+	install -Dm644 llama.cpp-server-tray_on.svg $(DESTDIR)$(ICON_DIR)/llama.cpp-server-tray_on.svg
+	install -Dm644 llama.cpp-server-tray_off.svg $(DESTDIR)$(ICON_DIR)/llama.cpp-server-tray_off.svg
 
 install_docs:
 	install -Dm644 README.md $(DESTDIR)$(DOC_DIR)/README.md
@@ -23,8 +23,8 @@ install_docs:
 uninstall:
 	rm -f $(DESTDIR)$(BIN_DIR)/llama.cpp-server-tray
 	rm -f $(DESTDIR)$(DESKTOP_DIR)/llama.cpp-server-tray.desktop
-	rm -f $(DESTDIR)$(ICON_DIR)/llama_service_running.png
-	rm -f $(DESTDIR)$(ICON_DIR)/llama_service.png
+	rm -f $(DESTDIR)$(ICON_DIR)/llama.cpp-server-tray_on.svg
+	rm -f $(DESTDIR)$(ICON_DIR)/llama.cpp-server-tray_off.svg
 	rm -rf $(DESTDIR)$(DOC_DIR)
 
 .PHONY: install install_bin install_desktop install_icons install_docs uninstall
